@@ -9,7 +9,176 @@ namespace Floodgate.Tests
 {
     [TestClass]
     public class Log2UseCases : BaseUseCases
-    {
+    {        
+      [TestMethod]
+      public override void  Test001()
+      {
+        base.Test001();
+      }
+      [TestMethod]
+      public override void  Test002()
+      {
+        base.Test002();
+      }
+      
+        [TestMethod]
+        [Description("After hitting several threshold violations and undergoing rate-limtiing, experience period of inactivity and then hit rate limits again")]
+        public virtual void Test003()
+        {
+            var settings = Settings;
+            long currentTime = DateTime.Now.Ticks;
+            settings.GetTimestamp = () => currentTime;
+
+            var algo = new FloodgateOrchestrator<int>(settings);
+
+            FloodgateResponse res;
+            int unq1 = 123456;
+            var expectedSkippedCount = 0;
+
+            for (int i = 0; i < settings.SpilloverThreshold; i++)
+            {
+                res = algo.ShouldSpillover(unq1);
+
+                Assert.AreEqual(expectedSkippedCount = 0, res.NumSkipped, "NumSkipped at " + i);
+                Assert.AreEqual(true, res.ShouldSend, "SHouldSend at " + i);
+            }
+
+            res = algo.ShouldSpillover(unq1);
+            Assert.AreEqual(expectedSkippedCount = 1, res.NumSkipped, "Num skipped after hit threshold");
+            Assert.AreEqual(false, res.ShouldSend, "ShouldSend after hit threshold");
+
+            for (int j = 0; j < IterationLogarithm(1) - 1; j++)
+            {
+                currentTime += settings.TSInterval;
+                expectedSkippedCount = 1;
+                for (int i = 0; i < settings.TimeframeSpilloverThreshold; i++)
+                {
+                    res = algo.ShouldSpillover(unq1);
+
+                    Assert.AreEqual(expectedSkippedCount, res.NumSkipped, "NumSkipped at i=" + i + " and j= " + j);
+                    Assert.AreEqual(true, res.ShouldSend, "SHouldSend at i=" + i + " and j= " + j);
+                    expectedSkippedCount = 0;
+                }
+
+                res = algo.ShouldSpillover(unq1);
+                Assert.AreEqual(expectedSkippedCount = 1, res.NumSkipped, "Num skipped after hit threshold");
+                Assert.AreEqual(false, res.ShouldSend, "ShouldSend after hit threshold");
+            }
+
+            for (int j = 0; j < IterationLogarithm(2) - 1; j++)
+            {
+                currentTime += settings.TSInterval;
+                expectedSkippedCount = 1;
+                for (int i = 0; i < settings.TimeframeSpilloverThreshold / 2; i++)
+                {
+                    res = algo.ShouldSpillover(unq1);
+
+                    Assert.AreEqual(expectedSkippedCount, res.NumSkipped, "NumSkipped at i=" + i + " and j= " + j);
+                    Assert.AreEqual(true, res.ShouldSend, "SHouldSend at i=" + i + " and j= " + j);
+                    expectedSkippedCount = 0;
+                }
+
+                res = algo.ShouldSpillover(unq1);
+                Assert.AreEqual(expectedSkippedCount = 1, res.NumSkipped, "Num skipped after hit threshold");
+                Assert.AreEqual(false, res.ShouldSend, "ShouldSend after hit threshold");
+            }
+
+
+            currentTime += settings.TSInterval * 4;
+
+            // The mathematical explanation for how the spillover threshold
+            // is changing elludes me, but it is a predictable amount somewhat
+            // related to how much spillover has taken place prior 
+            // to the break in activity
+            for (int j = 0; j < 1; j++)
+            {
+                currentTime += settings.TSInterval;
+                expectedSkippedCount = 1;
+                for (int i = 0; i < settings.TimeframeSpilloverThreshold / 2; i++)
+                {
+                    res = algo.ShouldSpillover(unq1);
+
+                    Assert.AreEqual(expectedSkippedCount, res.NumSkipped, "NumSkipped at i=" + i + " and j= " + j);
+                    Assert.AreEqual(true, res.ShouldSend, "SHouldSend at i=" + i + " and j= " + j);
+                    expectedSkippedCount = 0;
+                }
+
+                res = algo.ShouldSpillover(unq1);
+                Assert.AreEqual(expectedSkippedCount = 1, res.NumSkipped, "Num skipped after hit threshold");
+                Assert.AreEqual(false, res.ShouldSend, "ShouldSend after hit threshold");
+            }
+
+            // The mathematical explanation for how the spillover threshold
+            // is changing elludes me, but it is a predictable amount somewhat
+            // related to how much spillover has taken place prior 
+            // to the break in activity
+            for (int j = 0; j < IterationLogarithm(2) + 1; j++)
+            {
+                currentTime += settings.TSInterval;
+                expectedSkippedCount = 1;
+                for (int i = 0; i < settings.TimeframeSpilloverThreshold / 2; i++)
+                {
+                    res = algo.ShouldSpillover(unq1);
+
+                    Assert.AreEqual(expectedSkippedCount, res.NumSkipped, "NumSkipped at i=" + i + " and j= " + j);
+                    Assert.AreEqual(true, res.ShouldSend, "SHouldSend at i=" + i + " and j= " + j);
+                    expectedSkippedCount = 0;
+                }
+
+                res = algo.ShouldSpillover(unq1);
+                Assert.AreEqual(expectedSkippedCount = 1, res.NumSkipped, "Num skipped after hit threshold");
+                Assert.AreEqual(false, res.ShouldSend, "ShouldSend after hit threshold");
+            }
+
+
+            // at this point the chaos after the break in activity has normalized 
+            // and we are back to business as usual
+            for (int j = 0; j < IterationLogarithm(3) + IterationLogarithm(4); j++)
+            {
+                currentTime += settings.TSInterval;
+                expectedSkippedCount = 1;
+                for (int i = 0; i < settings.TimeframeSpilloverThreshold / 4; i++)
+                {
+                    res = algo.ShouldSpillover(unq1);
+
+                    Assert.AreEqual(expectedSkippedCount, res.NumSkipped, "NumSkipped at i=" + i + " and j= " + j);
+                    Assert.AreEqual(true, res.ShouldSend, "SHouldSend at i=" + i + " and j= " + j);
+                    expectedSkippedCount = 0;
+                }
+
+                res = algo.ShouldSpillover(unq1);
+                Assert.AreEqual(expectedSkippedCount = 1, res.NumSkipped, "Num skipped after hit threshold");
+                Assert.AreEqual(false, res.ShouldSend, "ShouldSend after hit threshold");
+            }
+
+            for (int j = 0; j < 256; j++)
+            {
+                currentTime += settings.TSInterval;
+                for (int i = 0; i < settings.TimeframeSpilloverThreshold / 8; i++)
+                {
+                    res = algo.ShouldSpillover(unq1);
+
+                    Assert.AreEqual(expectedSkippedCount, res.NumSkipped, "NumSkipped at i=" + i + " and j= " + j);
+                    Assert.AreEqual(true, res.ShouldSend, "SHouldSend at i=" + i + " and j= " + j);
+                    expectedSkippedCount = 0;
+                }
+
+                res = algo.ShouldSpillover(unq1);
+                Assert.AreEqual(expectedSkippedCount = 1, res.NumSkipped, "Num skipped after hit threshold");
+                Assert.AreEqual(false, res.ShouldSend, "ShouldSend after hit threshold");
+            }
+        }
+
+      [TestMethod]
+      public override void  Test004()
+      {
+        base.Test004();
+      }
+      [TestMethod]
+      public override void  Test005()
+      {
+        base.Test005();
+      }
     }
 }
 

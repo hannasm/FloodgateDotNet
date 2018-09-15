@@ -27,7 +27,7 @@ namespace Floodgate {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddTimeframe(long ts)
         {
-            Window[NextTimeframe].Init(ts, AttritionCount, _settings.TimeframeSpilloverThreshold, _settings.AttritionLogarithmBase);
+            Window[NextTimeframe].Init(ts, AttritionCount, _settings.TimeframeSpilloverThreshold, _settings.AttritionLogarithmBase, _settings.LogTool);
             CurrentTimeframe = NextTimeframe;
             NextTimeframe = (NextTimeframe + 1) % Window.Length;
             ValidWindowSize += 1;

@@ -1,24 +1,34 @@
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
 namespace Floodgate
 {
   public class LogarithmTool {
     struct Node {
-      public int output;
-      public long input;
+      public uint output;
+      public ulong input;
       public bool valid;
     }
 
-    public LogarithmTool(int @base) {
+    public LogarithmTool(int @base) : this((uint)@base) {
+          if (@base < 0 ) {
+            throw new ArgumentException("base must be > 1");
+          }
+    }
+    public LogarithmTool(uint @base) {
+          if (@base <= 1 ) {
+            throw new ArgumentException("base must be > 1");
+          }
+
       _base = @base;
 
       List<Node> tmp = new List<Node>();
-      long oldc = -1;
+      ulong oldc = 0;
       unchecked { 
-        for (long c = _base, i = 1; c > oldc; oldc = c, c *= _base, i++) {
-          tmp.Add(new Node { input = c, output = (int)i, valid = true });
+        for (ulong c = _base, i = 1; c > oldc; oldc = c, c *= _base, i++) {
+          tmp.Add(new Node { input = c, output = (uint)i, valid = true });
         }
       }
 
@@ -30,34 +40,26 @@ namespace Floodgate
       Build(tmp, tmp.Count / 2, 0, tmp.Count, 0);
     }
 
-    int pow(int val, int exp) {
-      if (exp == 0) { return 1; }
-      while (--exp > 0) {
-        val *= val;
-      }
-      return val;
-    }
-
-    public int Log(long value) {
-      bool sign = value < 0;
-      if (sign) { value = -value; }
+    public uint Log(long value) {
       if (value < _base) { return 0; }
 
-      var res = DoLog(value);
-
-      if (sign) { value = -value; }
-
-      return res;
+      return DoLog((ulong)value);
     }
 
-    int DoLog(long value) {
+    public uint Log(ulong value) {
+      if (value < (uint)_base) { return 0; }
+
+      return DoLog((ulong)value);      
+    }
+
+    uint DoLog(ulong value) {
       int i = 0;
       int mini = -1, maxi = -1;
       while (true) {
         if (i >= _lookup.Length || !_lookup[i].valid) {
-          return mini;
+          return _lookup[mini].output;
         }
-        if (_lookup[i].input >= value) { maxi = i; i = i*2+1; }
+        if (_lookup[i].input > value) { maxi = i; i = i*2+1; }
         else { mini = i; i = i*2+2; }
       }
     }
@@ -69,7 +71,7 @@ namespace Floodgate
 
       if (smin >= smax) { return; }
 
-      Build(source, sc - (sc - smin)/2, smin, sc, dc*2 + 1);
+      Build(source, sc - (1 + sc - smin)/2, smin, sc, dc*2 + 1);
       Build(source, sc + (smax - sc)/2, sc+1, smax, dc*2 + 2);
     }
 
@@ -102,8 +104,8 @@ namespace Floodgate
     }
 
     Node [] _lookup;
-    int _base;
-    public long MaxInput;
-    public long MaxOutput;
+    uint _base;
+    public ulong MaxInput;
+    public uint MaxOutput;
   }
 }

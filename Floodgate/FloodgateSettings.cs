@@ -77,7 +77,26 @@ namespace Floodgate {
         /// At log 2, we send 1/2  as many messages per bucket after 4 buckets of attrition (about 20 seconds with a 5 second bucket), and 1/3 as mayn after 8 buckets (about 40 seconds), 
         /// and 1/4 as many after 16 buckets (about 1.5 minutes).
         /// </summary>
-        public int AttritionLogarithmBase = 2;
+        public int AttritionLogarithmBase {
+            get {
+                return _attrLogBase;
+            }
+            set {
+                _attrLogBase = value;
+                _logTool = new LogarithmTool(value);
+            }
+        }
+
+        int _attrLogBase = 2;
+        LogarithmTool _logTool = new LogarithmTool(2);
+
+        /// <summary>
+        /// Used to compute integer logarithms through a lookup table
+        public LogarithmTool LogTool {
+            get {
+                return  _logTool;
+            }
+        }
 
         /// <summary>
         /// This is the amount of time stored in a single bucket

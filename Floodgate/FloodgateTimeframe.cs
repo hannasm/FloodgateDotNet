@@ -12,13 +12,13 @@ namespace Floodgate {
     public struct FloodgateTimeframe
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Init(long ts, long attr, long bucketSendLimit, long attritionBase)
+        public void Init(long ts, long attr, long bucketSendLimit, int attritionBase, LogarithmTool logTool)
         {
             SkippedCount = 0;
             ReceivedDate = ts;
             ReceivedCount = 0;
             AttritionCount = attr;
-            SendLimit = Math.Max(1L, bucketSendLimit / (long)(Math.Log(AttritionCount + attritionBase, attritionBase)+0.001));
+            SendLimit = Math.Max(1L, bucketSendLimit / logTool.Log(AttritionCount + attritionBase));
             IsValid = true;
         }
 
