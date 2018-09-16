@@ -7,12 +7,13 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using AccurateIntegerLogarithm;
 
 namespace Floodgate {
     public struct FloodgateTimeframe
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Init(long ts, long attr, long bucketSendLimit, int attritionBase, LogarithmTool logTool)
+        public void Init(long ts, long attr, long bucketSendLimit, int attritionBase, AccurateIntegerLogarithmTool logTool)
         {
             SkippedCount = 0;
             ReceivedDate = ts;

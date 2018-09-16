@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using AccurateIntegerLogarithm;
 
 namespace Floodgate {
 
@@ -83,16 +84,16 @@ namespace Floodgate {
             }
             set {
                 _attrLogBase = value;
-                _logTool = new LogarithmTool(value);
+                _logTool = new AccurateIntegerLogarithmTool(value);
             }
         }
 
         int _attrLogBase = 2;
-        LogarithmTool _logTool = new LogarithmTool(2);
+        AccurateIntegerLogarithmTool _logTool = new AccurateIntegerLogarithmTool(2);
 
         /// <summary>
         /// Used to compute integer logarithms through a lookup table
-        public LogarithmTool LogTool {
+        public AccurateIntegerLogarithmTool LogTool {
             get {
                 return  _logTool;
             }
