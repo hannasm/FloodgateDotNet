@@ -121,5 +121,5 @@ ActualTimeframeSpilloverThreshold = TimeframeSpilloverThreshold / Math.Truncate(
  | GetTimestamp                | ()=>DateTime.Now.Ticks | Returns the timestamp for the current event, must never go backwards |
 # Release Notes
 
-[For Release Notes See Here](ExpressiveExpressionTrees.ReleaseNotes.md)
+[For Release Notes See Here](Floodgate.ReleaseNotes.md)
 
