@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Floodgate.Tests {
-    public abstract class BaseUseCases    
+    public abstract class BaseUseCases
     {
         public virtual FloodgateSettings Settings {
           get {
@@ -21,7 +21,7 @@ namespace Floodgate.Tests {
           }
           return result;
         }
-            
+
         public long IterationLogarithm(int iter) {
             return Exponent(Settings.AttritionLogarithmBase, iter+1) - Exponent(Settings.AttritionLogarithmBase, iter);
         }
@@ -41,120 +41,120 @@ namespace Floodgate.Tests {
 
             for (int i = 0; i < settings.SpilloverThreshold; i++)
             {
-                res = algo.ShouldSpillover(unq1);
+                res = algo.NextEvent(unq1);
 
-                Assert.AreEqual(expectedSkippedCount = 0, res.NumSkipped, "NumSkipped at " + i);
-                Assert.AreEqual(true, res.ShouldSend, "SHouldSend at " + i);
+                Assert.AreEqual(expectedSkippedCount = 0, res.NumDisallowed, "NumDisallowed at " + i);
+                Assert.AreEqual(true, res.ShouldAllow, "ShouldAllow at " + i);
             }
 
-            res = algo.ShouldSpillover(unq1);
-            Assert.AreEqual(expectedSkippedCount = 1, res.NumSkipped, "Num skipped after hit threshold");
-            Assert.AreEqual(false, res.ShouldSend, "ShouldSend after hit threshold");
+            res = algo.NextEvent(unq1);
+            Assert.AreEqual(expectedSkippedCount = 1, res.NumDisallowed, "Num skipped after hit threshold");
+            Assert.AreEqual(false, res.ShouldAllow, "ShouldAllow after hit threshold");
 
             for (int j = 0; j < IterationLogarithm(1) - 1; j++)
             {
-                currentTime += settings.TSInterval;
+                currentTime += settings.TimeframeTicks;
                 expectedSkippedCount = 1;
                 for (int i = 0; i < settings.TimeframeSpilloverThreshold; i++)
                 {
-                    res = algo.ShouldSpillover(unq1);
+                    res = algo.NextEvent(unq1);
 
-                    Assert.AreEqual(expectedSkippedCount, res.NumSkipped, "NumSkipped at i=" + i + " and j= " + j);
-                    Assert.AreEqual(true, res.ShouldSend, "SHouldSend at i=" + i + " and j= " + j);
+                    Assert.AreEqual(expectedSkippedCount, res.NumDisallowed, "NumDisallowed at i=" + i + " and j= " + j);
+                    Assert.AreEqual(true, res.ShouldAllow, "ShouldAllow at i=" + i + " and j= " + j);
                     expectedSkippedCount = 0;
                 }
 
-                res = algo.ShouldSpillover(unq1);
-                Assert.AreEqual(expectedSkippedCount = 1, res.NumSkipped, "Num skipped after hit threshold");
-                Assert.AreEqual(false, res.ShouldSend, "ShouldSend after hit threshold");
+                res = algo.NextEvent(unq1);
+                Assert.AreEqual(expectedSkippedCount = 1, res.NumDisallowed, "Num skipped after hit threshold");
+                Assert.AreEqual(false, res.ShouldAllow, "ShouldAllow after hit threshold");
             }
 
             for (int j = 0; j < IterationLogarithm(2); j++)
             {
-                currentTime += settings.TSInterval;
+                currentTime += settings.TimeframeTicks;
                 expectedSkippedCount = 1;
                 for (int i = 0; i < settings.TimeframeSpilloverThreshold / 2; i++)
                 {
-                    res = algo.ShouldSpillover(unq1);
+                    res = algo.NextEvent(unq1);
 
-                    Assert.AreEqual(expectedSkippedCount, res.NumSkipped, "NumSkipped at i=" + i + " and j= " + j);
-                    Assert.AreEqual(true, res.ShouldSend, "SHouldSend at i=" + i + " and j= " + j);
+                    Assert.AreEqual(expectedSkippedCount, res.NumDisallowed, "NumDisallowed at i=" + i + " and j= " + j);
+                    Assert.AreEqual(true, res.ShouldAllow, "ShouldAllow at i=" + i + " and j= " + j);
                     expectedSkippedCount = 0;
                 }
 
-                res = algo.ShouldSpillover(unq1);
-                Assert.AreEqual(expectedSkippedCount = 1, res.NumSkipped, "Num skipped after hit threshold");
-                Assert.AreEqual(false, res.ShouldSend, "ShouldSend after hit threshold");
+                res = algo.NextEvent(unq1);
+                Assert.AreEqual(expectedSkippedCount = 1, res.NumDisallowed, "Num skipped after hit threshold");
+                Assert.AreEqual(false, res.ShouldAllow, "ShouldAllow after hit threshold");
             }
 
 
             for (int j = 0; j < IterationLogarithm(3); j++)
             {
-                currentTime += settings.TSInterval;
+                currentTime += settings.TimeframeTicks;
                 expectedSkippedCount = 1;
                 for (int i = 0; i < settings.TimeframeSpilloverThreshold / 3; i++)
                 {
-                    res = algo.ShouldSpillover(unq1);
+                    res = algo.NextEvent(unq1);
 
-                    Assert.AreEqual(expectedSkippedCount, res.NumSkipped, "NumSkipped at i=" + i + " and j= " + j);
-                    Assert.AreEqual(true, res.ShouldSend, "SHouldSend at i=" + i + " and j= " + j);
+                    Assert.AreEqual(expectedSkippedCount, res.NumDisallowed, "NumDisallowed at i=" + i + " and j= " + j);
+                    Assert.AreEqual(true, res.ShouldAllow, "ShouldAllow at i=" + i + " and j= " + j);
                     expectedSkippedCount = 0;
                 }
 
-                res = algo.ShouldSpillover(unq1);
-                Assert.AreEqual(expectedSkippedCount = 1, res.NumSkipped, "Num skipped after hit threshold and j=" + j);
-                Assert.AreEqual(false, res.ShouldSend, "ShouldSend after hit thresholdand j=" + j);
+                res = algo.NextEvent(unq1);
+                Assert.AreEqual(expectedSkippedCount = 1, res.NumDisallowed, "Num skipped after hit threshold and j=" + j);
+                Assert.AreEqual(false, res.ShouldAllow, "ShouldAllow after hit thresholdand j=" + j);
             }
 
             // we will continue sending one message for each bucket indefinitley
             for (int j = 0; j < IterationLogarithm(4); j++)
             {
-                currentTime += settings.TSInterval;
+                currentTime += settings.TimeframeTicks;
                 expectedSkippedCount = 1;
                 for (int i = 0; i < settings.TimeframeSpilloverThreshold / 4; i++)
                 {
-                    res = algo.ShouldSpillover(unq1);
+                    res = algo.NextEvent(unq1);
 
-                    Assert.AreEqual(expectedSkippedCount, res.NumSkipped, "NumSkipped at i=" + i + " and j= " + j);
-                    Assert.AreEqual(true, res.ShouldSend, "SHouldSend at i=" + i + " and j= " + j);
+                    Assert.AreEqual(expectedSkippedCount, res.NumDisallowed, "NumDisallowed at i=" + i + " and j= " + j);
+                    Assert.AreEqual(true, res.ShouldAllow, "ShouldAllow at i=" + i + " and j= " + j);
                     expectedSkippedCount = 0;
                 }
 
-                res = algo.ShouldSpillover(unq1);
-                Assert.AreEqual(expectedSkippedCount = 1, res.NumSkipped, "Num skipped after hit threshold");
-                Assert.AreEqual(false, res.ShouldSend, "ShouldSend after hit threshold");
+                res = algo.NextEvent(unq1);
+                Assert.AreEqual(expectedSkippedCount = 1, res.NumDisallowed, "Num skipped after hit threshold");
+                Assert.AreEqual(false, res.ShouldAllow, "ShouldAllow after hit threshold");
             }
-            
+
             // we will continue sending one message for each bucket indefinitley
             for (int j = 0; j < 256; j++)
             {
-                currentTime += settings.TSInterval;
+                currentTime += settings.TimeframeTicks;
                 expectedSkippedCount = 1;
                 for (int i = 0; i < settings.TimeframeSpilloverThreshold / 8; i++)
                 {
-                    res = algo.ShouldSpillover(unq1);
+                    res = algo.NextEvent(unq1);
 
-                    Assert.AreEqual(expectedSkippedCount, res.NumSkipped, "NumSkipped at i=" + i + " and j= " + j);
-                    Assert.AreEqual(true, res.ShouldSend, "SHouldSend at i=" + i + " and j= " + j);
+                    Assert.AreEqual(expectedSkippedCount, res.NumDisallowed, "NumDisallowed at i=" + i + " and j= " + j);
+                    Assert.AreEqual(true, res.ShouldAllow, "ShouldAllow at i=" + i + " and j= " + j);
                     expectedSkippedCount = 0;
                 }
 
-                res = algo.ShouldSpillover(unq1);
-                Assert.AreEqual(expectedSkippedCount = 1, res.NumSkipped, "Num skipped after hit threshold");
-                Assert.AreEqual(false, res.ShouldSend, "ShouldSend after hit threshold");
+                res = algo.NextEvent(unq1);
+                Assert.AreEqual(expectedSkippedCount = 1, res.NumDisallowed, "Num skipped after hit threshold");
+                Assert.AreEqual(false, res.ShouldAllow, "ShouldAllow after hit threshold");
             }
 
             // we will continue sending one message for each bucket indefinitley
             for (int j = 0; j < 8; j++)
             {
-                currentTime += settings.TSInterval;
+                currentTime += settings.TimeframeTicks;
 
                 for (int i = 0; i < settings.TimeframeSpilloverThreshold / 8; i++)
                 {
-                    res = algo.ShouldSpillover(unq1);
+                    res = algo.NextEvent(unq1);
 
-                    Assert.AreEqual(expectedSkippedCount, res.NumSkipped, "NumSkipped at i=" + i + " and j= " + j);
-                    Assert.AreEqual(true, res.ShouldSend, "SHouldSend at i=" + i + " and j= " + j);
+                    Assert.AreEqual(expectedSkippedCount, res.NumDisallowed, "NumDisallowed at i=" + i + " and j= " + j);
+                    Assert.AreEqual(true, res.ShouldAllow, "ShouldAllow at i=" + i + " and j= " + j);
                     expectedSkippedCount = 0;
                 }
             }
@@ -176,80 +176,80 @@ namespace Floodgate.Tests {
 
             for (int i = 0; i < settings.SpilloverThreshold; i++)
             {
-                res = algo.ShouldSpillover(unq1);
+                res = algo.NextEvent(unq1);
 
-                Assert.AreEqual(expectedSkippedCount = 0, res.NumSkipped, "NumSkipped at " + i);
-                Assert.AreEqual(true, res.ShouldSend, "SHouldSend at " + i);
+                Assert.AreEqual(expectedSkippedCount = 0, res.NumDisallowed, "NumDisallowed at " + i);
+                Assert.AreEqual(true, res.ShouldAllow, "ShouldAllow at " + i);
             }
 
-            res = algo.ShouldSpillover(unq1);
-            Assert.AreEqual(expectedSkippedCount = 1, res.NumSkipped, "Num skipped after hit threshold");
-            Assert.AreEqual(false, res.ShouldSend, "ShouldSend after hit threshold");
+            res = algo.NextEvent(unq1);
+            Assert.AreEqual(expectedSkippedCount = 1, res.NumDisallowed, "Num skipped after hit threshold");
+            Assert.AreEqual(false, res.ShouldAllow, "ShouldAllow after hit threshold");
 
             for (int j = 0; j < IterationLogarithm(1) - 1; j++)
             {
-                currentTime += settings.TSInterval;
+                currentTime += settings.TimeframeTicks;
                 expectedSkippedCount = 1;
                 for (int i = 0; i < settings.TimeframeSpilloverThreshold; i++)
                 {
-                    res = algo.ShouldSpillover(unq1);
+                    res = algo.NextEvent(unq1);
 
-                    Assert.AreEqual(expectedSkippedCount, res.NumSkipped, "NumSkipped at i=" + i + " and j= " + j);
-                    Assert.AreEqual(true, res.ShouldSend, "SHouldSend at i=" + i + " and j= " + j);
+                    Assert.AreEqual(expectedSkippedCount, res.NumDisallowed, "NumDisallowed at i=" + i + " and j= " + j);
+                    Assert.AreEqual(true, res.ShouldAllow, "ShouldAllow at i=" + i + " and j= " + j);
                     expectedSkippedCount = 0;
                 }
 
-                res = algo.ShouldSpillover(unq1);
-                Assert.AreEqual(expectedSkippedCount = 1, res.NumSkipped, "Num skipped after hit threshold");
-                Assert.AreEqual(false, res.ShouldSend, "ShouldSend after hit threshold");
+                res = algo.NextEvent(unq1);
+                Assert.AreEqual(expectedSkippedCount = 1, res.NumDisallowed, "Num skipped after hit threshold");
+                Assert.AreEqual(false, res.ShouldAllow, "ShouldAllow after hit threshold");
             }
 
             for (int j = 0; j < IterationLogarithm(2) - 1; j++)
             {
-                currentTime += settings.TSInterval;
+                currentTime += settings.TimeframeTicks;
                 expectedSkippedCount = 1;
                 for (int i = 0; i < settings.TimeframeSpilloverThreshold / 2; i++)
                 {
-                    res = algo.ShouldSpillover(unq1);
+                    res = algo.NextEvent(unq1);
 
-                    Assert.AreEqual(expectedSkippedCount, res.NumSkipped, "NumSkipped at i=" + i + " and j= " + j);
-                    Assert.AreEqual(true, res.ShouldSend, "SHouldSend at i=" + i + " and j= " + j);
+                    Assert.AreEqual(expectedSkippedCount, res.NumDisallowed, "NumDisallowed at i=" + i + " and j= " + j);
+                    Assert.AreEqual(true, res.ShouldAllow, "ShouldAllow at i=" + i + " and j= " + j);
                     expectedSkippedCount = 0;
                 }
 
-                res = algo.ShouldSpillover(unq1);
-                Assert.AreEqual(expectedSkippedCount = 1, res.NumSkipped, "Num skipped after hit threshold");
-                Assert.AreEqual(false, res.ShouldSend, "ShouldSend after hit threshold");
+                res = algo.NextEvent(unq1);
+                Assert.AreEqual(expectedSkippedCount = 1, res.NumDisallowed, "Num skipped after hit threshold");
+                Assert.AreEqual(false, res.ShouldAllow, "ShouldAllow after hit threshold");
             }
 
 
-            currentTime += settings.TSInterval * 4;
+            currentTime += settings.TimeframeTicks * 4;
             expectedSkippedCount = 1;
             for (int j = 0; j < 1; j++)
             {
-                currentTime += settings.TSInterval;
+                currentTime += settings.TimeframeTicks;
 
-                res = algo.ShouldSpillover(unq1);
+                res = algo.NextEvent(unq1);
 
-                Assert.AreEqual(expectedSkippedCount, res.NumSkipped, "NumSkipped at j= " + j);
-                Assert.AreEqual(true, res.ShouldSend, "SHouldSend at j= " + j);
+                Assert.AreEqual(expectedSkippedCount, res.NumDisallowed, "NumDisallowed at j= " + j);
+                Assert.AreEqual(true, res.ShouldAllow, "ShouldAllow at j= " + j);
                 expectedSkippedCount = 0;
             }
 
             // we already sent one, and then we need to sent threshold -1  more to hit the threshold
 
-            currentTime += settings.TSInterval;
+            currentTime += settings.TimeframeTicks;
             for (int i = 0; i < settings.SpilloverThreshold - 1; i++)
             {
-                res = algo.ShouldSpillover(unq1);
+                res = algo.NextEvent(unq1);
 
-                Assert.AreEqual(expectedSkippedCount = 0, res.NumSkipped, "NumSkipped at " + i);
-                Assert.AreEqual(true, res.ShouldSend, "SHouldSend at " + i);
+                Assert.AreEqual(expectedSkippedCount = 0, res.NumDisallowed, "NumDisallowed at " + i);
+                Assert.AreEqual(true, res.ShouldAllow, "ShouldAllow at " + i);
             }
 
-            res = algo.ShouldSpillover(unq1);
-            Assert.AreEqual(expectedSkippedCount = 1, res.NumSkipped, "Num skipped after hit threshold");
-            Assert.AreEqual(false, res.ShouldSend, "ShouldSend after hit threshold");
+            res = algo.NextEvent(unq1);
+            Assert.AreEqual(expectedSkippedCount = 1, res.NumDisallowed, "Num skipped after hit threshold");
+            Assert.AreEqual(false, res.ShouldAllow, "ShouldAllow after hit threshold");
         }
 
 
@@ -269,136 +269,136 @@ namespace Floodgate.Tests {
 
             for (int j = 0; j < settings.WindowSize; j++)
             {
-                currentTime += settings.TSInterval;
+                currentTime += settings.TimeframeTicks;
 
                 for (int i = 0; i < 1; i++)
                 {
-                    res = algo.ShouldSpillover(unq1);
+                    res = algo.NextEvent(unq1);
 
-                    Assert.AreEqual(expectedSkippedCount, res.NumSkipped, "NumSkipped at i=" + i + " and j= " + j);
-                    Assert.AreEqual(true, res.ShouldSend, "SHouldSend at i=" + i + " and j= " + j);
+                    Assert.AreEqual(expectedSkippedCount, res.NumDisallowed, "NumDisallowed at i=" + i + " and j= " + j);
+                    Assert.AreEqual(true, res.ShouldAllow, "ShouldAllow at i=" + i + " and j= " + j);
                     expectedSkippedCount = 0;
                 }
             }
 
 
-            currentTime += settings.TSInterval;
+            currentTime += settings.TimeframeTicks;
             for (int i = 0; i < settings.SpilloverThreshold + 1 - settings.WindowSize; i++)
             {
-                res = algo.ShouldSpillover(unq1);
+                res = algo.NextEvent(unq1);
 
-                Assert.AreEqual(expectedSkippedCount = 0, res.NumSkipped, "NumSkipped at " + i);
-                Assert.AreEqual(true, res.ShouldSend, "SHouldSend at " + i);
+                Assert.AreEqual(expectedSkippedCount = 0, res.NumDisallowed, "NumDisallowed at " + i);
+                Assert.AreEqual(true, res.ShouldAllow, "ShouldAllow at " + i);
             }
 
-            res = algo.ShouldSpillover(unq1);
-            Assert.AreEqual(expectedSkippedCount = 1, res.NumSkipped, "Num skipped after hit threshold");
-            Assert.AreEqual(false, res.ShouldSend, "ShouldSend after hit threshold");
+            res = algo.NextEvent(unq1);
+            Assert.AreEqual(expectedSkippedCount = 1, res.NumDisallowed, "Num skipped after hit threshold");
+            Assert.AreEqual(false, res.ShouldAllow, "ShouldAllow after hit threshold");
 
             for (int j = 0; j < IterationLogarithm(1) - 1; j++)
             {
-                currentTime += settings.TSInterval;
+                currentTime += settings.TimeframeTicks;
                 expectedSkippedCount = 1;
                 for (int i = 0; i < settings.TimeframeSpilloverThreshold; i++)
                 {
-                    res = algo.ShouldSpillover(unq1);
+                    res = algo.NextEvent(unq1);
 
-                    Assert.AreEqual(expectedSkippedCount, res.NumSkipped, "NumSkipped at i=" + i + " and j= " + j);
-                    Assert.AreEqual(true, res.ShouldSend, "SHouldSend at i=" + i + " and j= " + j);
+                    Assert.AreEqual(expectedSkippedCount, res.NumDisallowed, "NumDisallowed at i=" + i + " and j= " + j);
+                    Assert.AreEqual(true, res.ShouldAllow, "ShouldAllow at i=" + i + " and j= " + j);
                     expectedSkippedCount = 0;
                 }
 
-                res = algo.ShouldSpillover(unq1);
-                Assert.AreEqual(expectedSkippedCount = 1, res.NumSkipped, "Num skipped after hit threshold");
-                Assert.AreEqual(false, res.ShouldSend, "ShouldSend after hit threshold");
+                res = algo.NextEvent(unq1);
+                Assert.AreEqual(expectedSkippedCount = 1, res.NumDisallowed, "Num skipped after hit threshold");
+                Assert.AreEqual(false, res.ShouldAllow, "ShouldAllow after hit threshold");
             }
 
             for (int j = 0; j < IterationLogarithm(2); j++)
             {
-                currentTime += settings.TSInterval;
+                currentTime += settings.TimeframeTicks;
                 expectedSkippedCount = 1;
                 for (int i = 0; i < settings.TimeframeSpilloverThreshold / 2; i++)
                 {
-                    res = algo.ShouldSpillover(unq1);
+                    res = algo.NextEvent(unq1);
 
-                    Assert.AreEqual(expectedSkippedCount, res.NumSkipped, "NumSkipped at i=" + i + " and j= " + j);
-                    Assert.AreEqual(true, res.ShouldSend, "SHouldSend at i=" + i + " and j= " + j);
+                    Assert.AreEqual(expectedSkippedCount, res.NumDisallowed, "NumDisallowed at i=" + i + " and j= " + j);
+                    Assert.AreEqual(true, res.ShouldAllow, "ShouldAllow at i=" + i + " and j= " + j);
                     expectedSkippedCount = 0;
                 }
 
-                res = algo.ShouldSpillover(unq1);
-                Assert.AreEqual(expectedSkippedCount = 1, res.NumSkipped, "Num skipped after hit threshold");
-                Assert.AreEqual(false, res.ShouldSend, "ShouldSend after hit threshold");
+                res = algo.NextEvent(unq1);
+                Assert.AreEqual(expectedSkippedCount = 1, res.NumDisallowed, "Num skipped after hit threshold");
+                Assert.AreEqual(false, res.ShouldAllow, "ShouldAllow after hit threshold");
             }
 
 
             for (int j = 0; j < IterationLogarithm(3); j++)
             {
-                currentTime += settings.TSInterval;
+                currentTime += settings.TimeframeTicks;
                 expectedSkippedCount = 1;
                 for (int i = 0; i < settings.TimeframeSpilloverThreshold / 3; i++)
                 {
-                    res = algo.ShouldSpillover(unq1);
+                    res = algo.NextEvent(unq1);
 
-                    Assert.AreEqual(expectedSkippedCount, res.NumSkipped, "NumSkipped at i=" + i + " and j= " + j);
-                    Assert.AreEqual(true, res.ShouldSend, "SHouldSend at i=" + i + " and j= " + j);
+                    Assert.AreEqual(expectedSkippedCount, res.NumDisallowed, "NumDisallowed at i=" + i + " and j= " + j);
+                    Assert.AreEqual(true, res.ShouldAllow, "ShouldAllow at i=" + i + " and j= " + j);
                     expectedSkippedCount = 0;
                 }
 
-                res = algo.ShouldSpillover(unq1);
-                Assert.AreEqual(expectedSkippedCount = 1, res.NumSkipped, "Num skipped after hit threshold");
-                Assert.AreEqual(false, res.ShouldSend, "ShouldSend after hit threshold");
+                res = algo.NextEvent(unq1);
+                Assert.AreEqual(expectedSkippedCount = 1, res.NumDisallowed, "Num skipped after hit threshold");
+                Assert.AreEqual(false, res.ShouldAllow, "ShouldAllow after hit threshold");
             }
 
             // we will continue sending one message for each bucket indefinitley
             for (int j = 0; j < IterationLogarithm(4); j++)
             {
-                currentTime += settings.TSInterval;
+                currentTime += settings.TimeframeTicks;
                 expectedSkippedCount = 1;
                 for (int i = 0; i < settings.TimeframeSpilloverThreshold / 4; i++)
                 {
-                    res = algo.ShouldSpillover(unq1);
+                    res = algo.NextEvent(unq1);
 
-                    Assert.AreEqual(expectedSkippedCount, res.NumSkipped, "NumSkipped at i=" + i + " and j= " + j);
-                    Assert.AreEqual(true, res.ShouldSend, "SHouldSend at i=" + i + " and j= " + j);
+                    Assert.AreEqual(expectedSkippedCount, res.NumDisallowed, "NumDisallowed at i=" + i + " and j= " + j);
+                    Assert.AreEqual(true, res.ShouldAllow, "ShouldAllow at i=" + i + " and j= " + j);
                     expectedSkippedCount = 0;
                 }
 
-                res = algo.ShouldSpillover(unq1);
-                Assert.AreEqual(expectedSkippedCount = 1, res.NumSkipped, "Num skipped after hit threshold");
-                Assert.AreEqual(false, res.ShouldSend, "ShouldSend after hit threshold");
+                res = algo.NextEvent(unq1);
+                Assert.AreEqual(expectedSkippedCount = 1, res.NumDisallowed, "Num skipped after hit threshold");
+                Assert.AreEqual(false, res.ShouldAllow, "ShouldAllow after hit threshold");
             }
 
             // we will continue sending one message for each bucket indefinitley
             for (int j = 0; j < 256; j++)
             {
-                currentTime += settings.TSInterval;
+                currentTime += settings.TimeframeTicks;
                 expectedSkippedCount = 1;
                 for (int i = 0; i < settings.TimeframeSpilloverThreshold / 8; i++)
                 {
-                    res = algo.ShouldSpillover(unq1);
+                    res = algo.NextEvent(unq1);
 
-                    Assert.AreEqual(expectedSkippedCount, res.NumSkipped, "NumSkipped at i=" + i + " and j= " + j);
-                    Assert.AreEqual(true, res.ShouldSend, "SHouldSend at i=" + i + " and j= " + j);
+                    Assert.AreEqual(expectedSkippedCount, res.NumDisallowed, "NumDisallowed at i=" + i + " and j= " + j);
+                    Assert.AreEqual(true, res.ShouldAllow, "ShouldAllow at i=" + i + " and j= " + j);
                     expectedSkippedCount = 0;
                 }
 
-                res = algo.ShouldSpillover(unq1);
-                Assert.AreEqual(expectedSkippedCount = 1, res.NumSkipped, "Num skipped after hit threshold");
-                Assert.AreEqual(false, res.ShouldSend, "ShouldSend after hit threshold");
+                res = algo.NextEvent(unq1);
+                Assert.AreEqual(expectedSkippedCount = 1, res.NumDisallowed, "Num skipped after hit threshold");
+                Assert.AreEqual(false, res.ShouldAllow, "ShouldAllow after hit threshold");
             }
 
             // we will continue sending one message for each bucket indefinitley
             for (int j = 0; j < 8; j++)
             {
-                currentTime += settings.TSInterval;
+                currentTime += settings.TimeframeTicks;
 
                 for (int i = 0; i < settings.TimeframeSpilloverThreshold / 8; i++)
                 {
-                    res = algo.ShouldSpillover(unq1);
+                    res = algo.NextEvent(unq1);
 
-                    Assert.AreEqual(expectedSkippedCount, res.NumSkipped, "NumSkipped at i=" + i + " and j= " + j);
-                    Assert.AreEqual(true, res.ShouldSend, "SHouldSend at i=" + i + " and j= " + j);
+                    Assert.AreEqual(expectedSkippedCount, res.NumDisallowed, "NumDisallowed at i=" + i + " and j= " + j);
+                    Assert.AreEqual(true, res.ShouldAllow, "ShouldAllow at i=" + i + " and j= " + j);
                     expectedSkippedCount = 0;
                 }
             }
@@ -421,136 +421,136 @@ namespace Floodgate.Tests {
 
             for (int j = 0; j < 50; j++)
             {
-                currentTime += settings.TSInterval;
+                currentTime += settings.TimeframeTicks;
 
                 for (int i = 0; i < 1; i++)
                 {
-                    res = algo.ShouldSpillover(unq1);
+                    res = algo.NextEvent(unq1);
 
-                    Assert.AreEqual(expectedSkippedCount, res.NumSkipped, "NumSkipped at i=" + i + " and j= " + j);
-                    Assert.AreEqual(true, res.ShouldSend, "SHouldSend at i=" + i + " and j= " + j);
+                    Assert.AreEqual(expectedSkippedCount, res.NumDisallowed, "NumDisallowed at i=" + i + " and j= " + j);
+                    Assert.AreEqual(true, res.ShouldAllow, "ShouldAllow at i=" + i + " and j= " + j);
                     expectedSkippedCount = 0;
                 }
             }
 
 
-            currentTime += settings.TSInterval;
+            currentTime += settings.TimeframeTicks;
             for (int i = 0; i < settings.SpilloverThreshold + 1 - settings.WindowSize; i++)
             {
-                res = algo.ShouldSpillover(unq1);
+                res = algo.NextEvent(unq1);
 
-                Assert.AreEqual(expectedSkippedCount = 0, res.NumSkipped, "NumSkipped at " + i);
-                Assert.AreEqual(true, res.ShouldSend, "SHouldSend at " + i);
+                Assert.AreEqual(expectedSkippedCount = 0, res.NumDisallowed, "NumDisallowed at " + i);
+                Assert.AreEqual(true, res.ShouldAllow, "ShouldAllow at " + i);
             }
 
-            res = algo.ShouldSpillover(unq1);
-            Assert.AreEqual(expectedSkippedCount = 1, res.NumSkipped, "Num skipped after hit threshold");
-            Assert.AreEqual(false, res.ShouldSend, "ShouldSend after hit threshold");
+            res = algo.NextEvent(unq1);
+            Assert.AreEqual(expectedSkippedCount = 1, res.NumDisallowed, "Num skipped after hit threshold");
+            Assert.AreEqual(false, res.ShouldAllow, "ShouldAllow after hit threshold");
 
             for (int j = 0; j < IterationLogarithm(1) - 1; j++)
             {
-                currentTime += settings.TSInterval;
+                currentTime += settings.TimeframeTicks;
                 expectedSkippedCount = 1;
                 for (int i = 0; i < settings.TimeframeSpilloverThreshold; i++)
                 {
-                    res = algo.ShouldSpillover(unq1);
+                    res = algo.NextEvent(unq1);
 
-                    Assert.AreEqual(expectedSkippedCount, res.NumSkipped, "NumSkipped at i=" + i + " and j= " + j);
-                    Assert.AreEqual(true, res.ShouldSend, "SHouldSend at i=" + i + " and j= " + j);
+                    Assert.AreEqual(expectedSkippedCount, res.NumDisallowed, "NumDisallowed at i=" + i + " and j= " + j);
+                    Assert.AreEqual(true, res.ShouldAllow, "ShouldAllow at i=" + i + " and j= " + j);
                     expectedSkippedCount = 0;
                 }
 
-                res = algo.ShouldSpillover(unq1);
-                Assert.AreEqual(expectedSkippedCount = 1, res.NumSkipped, "Num skipped after hit threshold");
-                Assert.AreEqual(false, res.ShouldSend, "ShouldSend after hit threshold");
+                res = algo.NextEvent(unq1);
+                Assert.AreEqual(expectedSkippedCount = 1, res.NumDisallowed, "Num skipped after hit threshold");
+                Assert.AreEqual(false, res.ShouldAllow, "ShouldAllow after hit threshold");
             }
 
             for (int j = 0; j < IterationLogarithm(2); j++)
             {
-                currentTime += settings.TSInterval;
+                currentTime += settings.TimeframeTicks;
                 expectedSkippedCount = 1;
                 for (int i = 0; i < settings.TimeframeSpilloverThreshold / 2; i++)
                 {
-                    res = algo.ShouldSpillover(unq1);
+                    res = algo.NextEvent(unq1);
 
-                    Assert.AreEqual(expectedSkippedCount, res.NumSkipped, "NumSkipped at i=" + i + " and j= " + j);
-                    Assert.AreEqual(true, res.ShouldSend, "SHouldSend at i=" + i + " and j= " + j);
+                    Assert.AreEqual(expectedSkippedCount, res.NumDisallowed, "NumDisallowed at i=" + i + " and j= " + j);
+                    Assert.AreEqual(true, res.ShouldAllow, "ShouldAllow at i=" + i + " and j= " + j);
                     expectedSkippedCount = 0;
                 }
 
-                res = algo.ShouldSpillover(unq1);
-                Assert.AreEqual(expectedSkippedCount = 1, res.NumSkipped, "Num skipped after hit threshold");
-                Assert.AreEqual(false, res.ShouldSend, "ShouldSend after hit threshold");
+                res = algo.NextEvent(unq1);
+                Assert.AreEqual(expectedSkippedCount = 1, res.NumDisallowed, "Num skipped after hit threshold");
+                Assert.AreEqual(false, res.ShouldAllow, "ShouldAllow after hit threshold");
             }
 
 
             for (int j = 0; j < IterationLogarithm(3); j++)
             {
-                currentTime += settings.TSInterval;
+                currentTime += settings.TimeframeTicks;
                 expectedSkippedCount = 1;
                 for (int i = 0; i < settings.TimeframeSpilloverThreshold / 3; i++)
                 {
-                    res = algo.ShouldSpillover(unq1);
+                    res = algo.NextEvent(unq1);
 
-                    Assert.AreEqual(expectedSkippedCount, res.NumSkipped, "NumSkipped at i=" + i + " and j= " + j);
-                    Assert.AreEqual(true, res.ShouldSend, "SHouldSend at i=" + i + " and j= " + j);
+                    Assert.AreEqual(expectedSkippedCount, res.NumDisallowed, "NumDisallowed at i=" + i + " and j= " + j);
+                    Assert.AreEqual(true, res.ShouldAllow, "ShouldAllow at i=" + i + " and j= " + j);
                     expectedSkippedCount = 0;
                 }
 
-                res = algo.ShouldSpillover(unq1);
-                Assert.AreEqual(expectedSkippedCount = 1, res.NumSkipped, "Num skipped after hit threshold");
-                Assert.AreEqual(false, res.ShouldSend, "ShouldSend after hit threshold");
+                res = algo.NextEvent(unq1);
+                Assert.AreEqual(expectedSkippedCount = 1, res.NumDisallowed, "Num skipped after hit threshold");
+                Assert.AreEqual(false, res.ShouldAllow, "ShouldAllow after hit threshold");
             }
 
             // we will continue sending one message for each bucket indefinitley
             for (int j = 0; j < IterationLogarithm(4); j++)
             {
-                currentTime += settings.TSInterval;
+                currentTime += settings.TimeframeTicks;
                 expectedSkippedCount = 1;
                 for (int i = 0; i < settings.TimeframeSpilloverThreshold / 4; i++)
                 {
-                    res = algo.ShouldSpillover(unq1);
+                    res = algo.NextEvent(unq1);
 
-                    Assert.AreEqual(expectedSkippedCount, res.NumSkipped, "NumSkipped at i=" + i + " and j= " + j);
-                    Assert.AreEqual(true, res.ShouldSend, "SHouldSend at i=" + i + " and j= " + j);
+                    Assert.AreEqual(expectedSkippedCount, res.NumDisallowed, "NumDisallowed at i=" + i + " and j= " + j);
+                    Assert.AreEqual(true, res.ShouldAllow, "ShouldAllow at i=" + i + " and j= " + j);
                     expectedSkippedCount = 0;
                 }
 
-                res = algo.ShouldSpillover(unq1);
-                Assert.AreEqual(expectedSkippedCount = 1, res.NumSkipped, "Num skipped after hit threshold");
-                Assert.AreEqual(false, res.ShouldSend, "ShouldSend after hit threshold");
+                res = algo.NextEvent(unq1);
+                Assert.AreEqual(expectedSkippedCount = 1, res.NumDisallowed, "Num skipped after hit threshold");
+                Assert.AreEqual(false, res.ShouldAllow, "ShouldAllow after hit threshold");
             }
 
             // we will continue sending one message for each bucket indefinitley
             for (int j = 0; j < 256; j++)
             {
-                currentTime += settings.TSInterval;
+                currentTime += settings.TimeframeTicks;
                 expectedSkippedCount = 1;
                 for (int i = 0; i < settings.TimeframeSpilloverThreshold / 8; i++)
                 {
-                    res = algo.ShouldSpillover(unq1);
+                    res = algo.NextEvent(unq1);
 
-                    Assert.AreEqual(expectedSkippedCount, res.NumSkipped, "NumSkipped at i=" + i + " and j= " + j);
-                    Assert.AreEqual(true, res.ShouldSend, "SHouldSend at i=" + i + " and j= " + j);
+                    Assert.AreEqual(expectedSkippedCount, res.NumDisallowed, "NumDisallowed at i=" + i + " and j= " + j);
+                    Assert.AreEqual(true, res.ShouldAllow, "ShouldAllow at i=" + i + " and j= " + j);
                     expectedSkippedCount = 0;
                 }
 
-                res = algo.ShouldSpillover(unq1);
-                Assert.AreEqual(expectedSkippedCount = 1, res.NumSkipped, "Num skipped after hit threshold");
-                Assert.AreEqual(false, res.ShouldSend, "ShouldSend after hit threshold");
+                res = algo.NextEvent(unq1);
+                Assert.AreEqual(expectedSkippedCount = 1, res.NumDisallowed, "Num skipped after hit threshold");
+                Assert.AreEqual(false, res.ShouldAllow, "ShouldAllow after hit threshold");
             }
 
             // we will continue sending one message for each bucket indefinitley
             for (int j = 0; j < 8; j++)
             {
-                currentTime += settings.TSInterval;
+                currentTime += settings.TimeframeTicks;
 
                 for (int i = 0; i < settings.TimeframeSpilloverThreshold / 8; i++)
                 {
-                    res = algo.ShouldSpillover(unq1);
+                    res = algo.NextEvent(unq1);
 
-                    Assert.AreEqual(expectedSkippedCount, res.NumSkipped, "NumSkipped at i=" + i + " and j= " + j);
-                    Assert.AreEqual(true, res.ShouldSend, "SHouldSend at i=" + i + " and j= " + j);
+                    Assert.AreEqual(expectedSkippedCount, res.NumDisallowed, "NumDisallowed at i=" + i + " and j= " + j);
+                    Assert.AreEqual(true, res.ShouldAllow, "ShouldAllow at i=" + i + " and j= " + j);
                     expectedSkippedCount = 0;
                 }
             }

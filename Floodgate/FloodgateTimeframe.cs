@@ -12,6 +12,7 @@ using AccurateIntegerLogarithm;
 namespace Floodgate {
     public struct FloodgateTimeframe
     {
+        /// <summary>Reassigns all fields, with the intention of reusing the timeframe</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Init(long ts, long attr, long bucketSendLimit, int attritionBase, AccurateIntegerLogarithmTool logTool)
         {

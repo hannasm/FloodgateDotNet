@@ -1,0 +1,7 @@
+    <authors>hannasm</authors>
+    <owners>hannasm</owners>
+	<licenseUrl>https://github.com/hannasm/FloodgateDotNet/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/hannasm/FloodgateDotnet</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Rate Limiter designed for robustness and speed.</description>
+    <copyright>Copyright 2018</copyright>

@@ -12,9 +12,11 @@ namespace Floodgate {
 
         public class FloodgateResponse
         {
-            public DateTime LastSend;
-            public bool ShouldSend;
-            public long NumSkipped;
+            /// <summary>Last time that an event was allowed</summary>
+            public DateTime LastAllowed;
+            /// <summary>Whether or not the next event should be allowed</summary>
+            public bool ShouldAllow;
+            /// <summary>The number of events which have been disallowed since the last one that was allowed</summary>
+            public long NumDisallowed;
         }
 }
-

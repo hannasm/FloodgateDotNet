@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace Floodgate {
-    public class FloodgateActor        
+    public class FloodgateActor
     {
         public FloodgateActor(FloodgateSettings settings)
         {
@@ -25,7 +25,7 @@ namespace Floodgate {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AddTimeframe(long ts)
+        void AddTimeframe(long ts)
         {
             Window[NextTimeframe].Init(ts, AttritionCount, _settings.TimeframeSpilloverThreshold, _settings.AttritionLogarithmBase, _settings.LogTool);
             CurrentTimeframe = NextTimeframe;
@@ -34,7 +34,7 @@ namespace Floodgate {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void RemoveTimeframe(int tid)
+        void RemoveTimeframe(int tid)
         {
             TotalReceived -= Window[tid].ReceivedCount;
             Window[tid].IsValid = false;
@@ -42,7 +42,7 @@ namespace Floodgate {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void CalculateAttrition(long attritionDeltaDelta)
+        void CalculateAttrition(long attritionDeltaDelta)
         {
             // attrition scale must always be at least 1, or the attrition score would never change positively or negatively
             long attritionScale = AttritionCount / Window.LongLength + 1L;
@@ -53,19 +53,19 @@ namespace Floodgate {
             attritionDelta -= attritionDeltaDelta * attritionScale;
 
             // allowing attrition delta to go below -1 would cause attrition to increase more quickly
-            // the more poorly behaved an actor was 
+            // the more poorly behaved an actor was
             attritionDelta = Math.Max(_settings.InverseAttritionDeltaMin, attritionDelta);
-            
+
             // letting attrition go negative might be an interesting way to give brownie points to well behaved actors
             // but in general would not be beneficial
             AttritionCount = Math.Max(_settings.AttritionMin, AttritionCount - attritionDelta);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public long GetTimestamp()
+        long GetTimestamp()
         {
             // get new timestamp, it must always be an ascending value
-            var ts = ((long)(_settings.GetTimestamp() / _settings.TSInterval)) * _settings.TSInterval;
+            var ts = ((long)(_settings.GetTimestamp() / _settings.TimeframeTicks)) * _settings.TimeframeTicks;
 
             if (ts < LastTimestamp)
             {
@@ -76,16 +76,16 @@ namespace Floodgate {
 
             // this call has some major side-affects and we need to wait to pull
             // any locals until after the call
-            this.RecalcWindow(ts);     
+            this.RecalcWindow(ts);
 
             return ts;
         }
 
-        public void RecalcWindow(long ts) {
+        void RecalcWindow(long ts) {
             if (this.Window[this.CurrentTimeframe].ReceivedDate != ts)
             {
                 // create a new timeframe, remove any that are outdated for the new window
-                var cutoff = ts - _settings.TSThreshold;
+                var cutoff = ts - _settings.WindowTicks;
                 long attritionDeltaDelta = 0;
 
                 int len = this.Window.Length;
@@ -101,12 +101,16 @@ namespace Floodgate {
                     attritionDeltaDelta += (this.Window[i].SkippedCount + _settings.TimeframeSpilloverThreshold - 1) / _settings.TimeframeSpilloverThreshold;
                 }
 
-                this.CalculateAttrition(attritionDeltaDelta);                    
+                this.CalculateAttrition(attritionDeltaDelta);
                 this.AddTimeframe(ts);
             }
         }
 
-        public FloodgateResponse ShouldSpillover() {
+        /// <summary>
+        /// Check whether the next event by this actor should be allowed
+        /// or disallowed based on past activity
+        /// </summary>
+        public FloodgateResponse NextEvent() {
             var ts = this.GetTimestamp();
 
             var cb = this.CurrentTimeframe;
@@ -122,9 +126,9 @@ namespace Floodgate {
                 this.LastSend = ts;
                 return new FloodgateResponse
                 {
-                    ShouldSend = true,
-                    NumSkipped = oldSkipped,
-                    LastSend = new DateTime(oldTs)
+                    ShouldAllow = true,
+                    NumDisallowed = oldSkipped,
+                    LastAllowed = new DateTime(oldTs)
                 };
             }
             else
@@ -133,25 +137,25 @@ namespace Floodgate {
                 this.TotalSkipped++;
                 return new FloodgateResponse
                 {
-                    ShouldSend = false,
-                    NumSkipped = this.TotalSkipped,
-                    LastSend = new DateTime(this.LastSend)
+                    ShouldAllow = false,
+                    NumDisallowed = this.TotalSkipped,
+                    LastAllowed = new DateTime(this.LastSend)
                 };
             }
         }
 
-        public long AttritionCount;
+        long AttritionCount;
 
-        public long TotalSkipped;
-        public long TotalReceived;
-        public long LastSend = 0;
-        public long LastTimestamp = -1;
+        long TotalSkipped;
+        long TotalReceived;
+        long LastSend = 0;
+        long LastTimestamp = -1;
         FloodgateSettings _settings;
 
-        public int NextTimeframe;
-        public int CurrentTimeframe;
+        int NextTimeframe;
+        int CurrentTimeframe;
 
-        public int ValidWindowSize;
-        public FloodgateTimeframe[] Window;
+        int ValidWindowSize;
+        FloodgateTimeframe[] Window;
     }
 }
