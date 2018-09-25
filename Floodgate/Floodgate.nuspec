@@ -10,9 +10,10 @@
 <description>Rate Limiter designed for robustness and speed.</description>
 <copyright>Copyright 2018</copyright>
 <version>
-1.0.0
+1.0.1
 </version>
 <releaseNotes>
+* 1.0.1 - obsolete TimeframeSize, reccomend use TimeframeTicks instead for more control
 * 1.0.0 - Initial Release
 </releaseNotes>
 <dependencies>
