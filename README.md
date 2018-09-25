@@ -1,9 +1,9 @@
 # Versioning
-This is version 1.0.0 of the FloodgateDotNet library
+This is version 1.0.1 of the FloodgateDotNet library
 
-This package is available on nuget at: https://www.nuget.org/packages/Floodgate/1.0.0
+This package is available on nuget at: https://www.nuget.org/packages/Floodgate/1.0.1
 
-The source for this package is available on github at: https://github.com/hannasm/FloodgateDotNet/releases/tag/1.0.0
+The source for this package is available on github at: https://github.com/hannasm/FloodgateDotNet/releases/tag/1.0.1
 
 # FloodgateDotNet
 This library implements smart logic to determine whether an actor has been flooding a system with events. This logic could be used to identify and mitigate denial of service attacks from a malicious user. It can be used to keep the same log message about some yet to be fixed system error that you've known about for months, from showing up in your logs 1,000,000 times a day and hiding any other useful log messages from appearing. The highly focused design of this code could also be applied inversely, so that an action is not allowed until the smart threshold has been reached instead.

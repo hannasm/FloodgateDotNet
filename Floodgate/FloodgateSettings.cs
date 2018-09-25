@@ -43,22 +43,7 @@ namespace Floodgate {
             set
             {
                 _windowCount = value;
-                _windowsTicks = _timeframeTicks * value;
-            }
-        }
-
-        /// <summary>
-        /// Number of milliseconds per timeframe
-        /// </summary>
-        public long TimeframeSize
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return _timeframeSize; }
-            set
-            {
-                _timeframeSize = value;
-                _timeframeTicks = TimeSpan.TicksPerMillisecond * value;
-                _windowsTicks = _timeframeTicks * WindowSize;
+                _windowTicks = _timeframeTicks * value;
             }
         }
 
@@ -110,6 +95,11 @@ namespace Floodgate {
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get { return _timeframeTicks; }
+            set {
+                _timeframeTicks = value;
+                _windowTicks = value * _windowCount;
+            }
+
         }
 
         /// <summary>
@@ -118,7 +108,7 @@ namespace Floodgate {
         public long WindowTicks
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return _windowsTicks; }
+            get { return _windowTicks; }
         }
 
         /// <summary>
@@ -132,12 +122,22 @@ namespace Floodgate {
         public FloodgateSettings()
         {
             WindowSize = 5;
-            TimeframeSize = 5000;
+            TimeframeTicks = 5 * TimeSpan.TicksPerSecond;
         }
 
         int _windowCount;
-        long _timeframeSize;
         long _timeframeTicks;
-        long _windowsTicks;
+        long _windowTicks;
+
+        /// <summary> Time in milliseconds for each timeframe </summary>
+        [System.Obsolete("Use TimeframeTicks instead")]
+        public long TimeframeSize {
+            get {
+                return _timeframeTicks / TimeSpan.TicksPerMillisecond;
+            }
+            set {
+                TimeframeTicks = value * TimeSpan.TicksPerMillisecond;
+            }
+        }
     }
 }
