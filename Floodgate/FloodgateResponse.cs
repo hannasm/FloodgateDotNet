@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Floodgate {
 
-        public class FloodgateResponse
+        public struct FloodgateResponse
         {
             /// <summary>Last time that an event was allowed</summary>
             public DateTime LastAllowed;

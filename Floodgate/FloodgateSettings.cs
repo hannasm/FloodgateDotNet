@@ -116,7 +116,7 @@ namespace Floodgate {
         /// never go backwards. It can be changed to simulate various situations where
         /// relying on the system clock just doesn't do what you need.
         /// </summary>
-        public Func<long> GetTimestamp = () => DateTime.Now.Ticks;
+        public Func<long> GetTimestamp = () => DateTime.UtcNow.Ticks;
 
 
         public FloodgateSettings()
@@ -139,5 +139,13 @@ namespace Floodgate {
                 TimeframeTicks = value * TimeSpan.TicksPerMillisecond;
             }
         }
+
+        /// <summary>
+        /// Delay between runs of the background cleanup thread. We don't want to be calling cleanup too frequently during
+        /// operation because it actually can be more expensive than the rest of the Floodgate Calculations. Perhaps
+        /// on severely constrained systems it would be helpful to make this delay even longer but as of right now
+        /// that is just speculation.
+        /// </summary>
+        public TimeSpan CleanupDelay = TimeSpan.FromMilliseconds(50);
     }
 }

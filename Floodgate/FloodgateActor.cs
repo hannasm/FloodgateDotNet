@@ -18,11 +18,9 @@ namespace Floodgate {
             Window = new FloodgateTimeframe[wsize];
             NextTimeframe = 0;
             CurrentTimeframe = wsize - 1;
-            for (int i = 0; i < Window.Length; i++)
-            {
-                Window[i].ReceivedDate = DateTime.MinValue.Ticks;
-            }
+            _cleanupTicks = (_settings.WindowSize+1) * _settings.TimeframeTicks;
         }
+        private readonly long _cleanupTicks;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void AddTimeframe(long ts)
@@ -85,25 +83,35 @@ namespace Floodgate {
             if (this.Window[this.CurrentTimeframe].ReceivedDate != ts)
             {
                 // create a new timeframe, remove any that are outdated for the new window
+                var spillover = _settings.TimeframeSpilloverThreshold;
                 var cutoff = ts - _settings.WindowTicks;
                 long attritionDeltaDelta = 0;
 
                 int len = this.Window.Length;
                 for (int i = 0; i < len; i += 1)
                 {
-                    if (!this.Window[i].IsValid) { continue; }
+                    var window = this.Window[i];
+                    if (!window.IsValid) { continue; }
 
-                    if (this.Window[i].ReceivedDate <= cutoff)
+                    if (window.ReceivedDate <= cutoff)
                     {
                         this.RemoveTimeframe(i);
                     }
 
-                    attritionDeltaDelta += (this.Window[i].SkippedCount + _settings.TimeframeSpilloverThreshold - 1) / _settings.TimeframeSpilloverThreshold;
+                    attritionDeltaDelta += (window.SkippedCount + spillover  - 1) / spillover;
                 }
 
                 this.CalculateAttrition(attritionDeltaDelta);
                 this.AddTimeframe(ts);
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool ReadyForCleanup() {
+            var ts = _settings.GetTimestamp();
+            var actorTs = this.LastTimestamp;
+
+            return actorTs == -1 || (actorTs + _cleanupTicks) < ts;
         }
 
         /// <summary>
